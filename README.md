@@ -6,7 +6,7 @@ Transactional inventory reservation backend system built using:
 
 - Python
 - PostgreSQL
-  -SQLAlchemy ORM
+- SQLAlchemy ORM
 
 The system manages:
 
