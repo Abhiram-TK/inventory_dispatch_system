@@ -15,9 +15,9 @@ print("Testing transactional reservation workflow...")
 
 # CREATE PRODUCT
 product = create_product(
-    name="Monitor",
-    sku="MONITOR001",
-    price=15000
+    name="Mousepad",
+    sku="PAD002",
+    price=750
 )
 
 print(product.id)
@@ -25,7 +25,7 @@ print(product.id)
 # CREATE INVENTORY BATCH
 batch = create_inventory_batch(
     product_id=product.id,
-    batch_number="BATCH-MON-001",
+    batch_number="BATCH-PAD-001",
     quantity_available=10,
     expiry_date=date(2027, 12, 31)
 )
