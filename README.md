@@ -1,4 +1,4 @@
-# Inventory Reservation System
+# Inventory Reservation & Dispatch System
 
 ## Project Overview
 
