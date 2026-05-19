@@ -1,14 +1,12 @@
-from app.models.reservation import Reservation
+from app.models.dispatch import Dispatch
 
-sample_reservation = Reservation(
-    batch_id=1,
-    reserved_quantity=5,
-    status="RESERVED"
+sample_dispatch = Dispatch(
+    reservation_id=1,
+    vehicle_number="KA01AB1234",
+    status="IN_TRANSIT"
 )
 
-print(sample_reservation.batch_id)
-print(sample_reservation.reserved_quantity)
-print(sample_reservation.status)
-print(sample_reservation.reserved_at)
-
-
+print(sample_dispatch.reservation_id)
+print(sample_dispatch.vehicle_number)
+print(sample_dispatch.status)
+print(sample_dispatch.dispatch_date)
