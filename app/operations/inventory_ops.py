@@ -30,6 +30,7 @@ def create_inventory_batch(product_id, batch_number, quantity_available, expiry_
 
     db.add(new_batch)
 
+
     db.commit()
 
     db.refresh(new_batch)
@@ -38,22 +39,46 @@ def create_inventory_batch(product_id, batch_number, quantity_available, expiry_
 
     return new_batch
 
-def reserve_inventory(batch_id, reserved_quantity, status):
+def reserve_inventory(batch_id, reserve_quantity):
 
     db = SessionLocal()
 
-    new_reservation = Reservation(batch_id=batch_id, reserved_quantity=reserved_quantity, status=status)
+    try:
 
-    db.add(new_reservation)
+        batch = db.query(InventoryBatch).filter(
+            InventoryBatch.id == batch_id
+        ).first()
 
-    batch = db.query(InventoryBatch).filter(InventoryBatch.id == batch_id).first()
+        if not batch:
+            raise Exception("Inventory batch not found")
 
-    batch.quantity_available -= reserved_quantity
+        if batch.quantity_available < reserve_quantity:
+            raise Exception("Insufficient inventory available")
 
-    db.commit()
+        batch.quantity_available -= reserve_quantity
 
-    db.refresh(new_reservation)
+        reservation = Reservation(
+            batch_id=batch.id,
+            reserved_quantity=reserve_quantity,
+            status="RESERVED"
+        )
 
-    db.close()
+        db.add(reservation)
 
-    return new_reservation
+        db.commit()
+
+        db.refresh(reservation)
+
+        return reservation
+
+    except Exception as error:
+
+        db.rollback()
+
+        print(f"Transaction failed: {error}")
+
+        return None
+
+    finally:
+
+        db.close()
