@@ -1,4 +1,7 @@
 from sqlalchemy import Column, Integer, String, Numeric, DateTime, CheckConstraint
+
+from sqlalchemy.orm import relationship
+
 from datetime import datetime
 
 from app.database.connection import Base
@@ -18,7 +21,9 @@ class Product(Base):
 
     created_at = Column(DateTime, default=datetime.utcnow)
 
+    batches = relationship("InventoryBatch", back_populates="product")
+
     __table_args__ = (
-        CheckConstraint('price > 0', 
-name='check_price_positive'),
-    )
+        CheckConstraint('price > 0', name='check_price_positive'),)
+    
+    

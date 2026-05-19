@@ -1,5 +1,7 @@
 from sqlalchemy import Column, Integer, String, ForeignKey, DateTime
 
+from sqlalchemy.orm import relationship
+
 from datetime import datetime
 
 from app.database.connection import Base
@@ -18,4 +20,5 @@ class Dispatch(Base):
 
     status = Column(String, nullable=False)
 
-    
+    reservation = relationship("Reservation", back_populates="dispatch")
+
