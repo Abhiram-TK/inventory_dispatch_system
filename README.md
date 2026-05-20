@@ -72,7 +72,7 @@ Tracks shipment/disptach records.
 ### Clone Repository
 
 ```bash
-git clone <https://github.com/Abhiram-TK/inventory_reservation_system>
+git clone <https://github.com/Abhiram-TK/inventory_dispatch_system>
 ```
 
 ### Create Virtual Environment
