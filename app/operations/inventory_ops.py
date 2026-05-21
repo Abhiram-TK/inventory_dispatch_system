@@ -77,7 +77,7 @@ def reserve_inventory(batch_id, reserve_quantity):
 
         print(f"Transaction failed: {error}")
 
-        return None
+        raise
 
     finally:
 
