@@ -1,109 +1,238 @@
 # Inventory Reservation & Dispatch System
 
-## Project Overview
+Transaction-safe backend inventory reservation and dispatch simulation system built using PostgreSQL and SQLAlchemy ORM.
 
-Transactional inventory reservation backend system built using:
+---
 
-- Python
-- PostgreSQL
-- SQLAlchemy ORM
+# Project Overview
 
-The system manages:
+This project simulates a backend inventory reservation engine capable of:
+
+- tracking inventory batches
+- reserving stock transactionally
+- validating inventory consistency
+- protecting against over-reservation
+- maintaing relational integrity
+- generating synthetic datasets for scaled validation
+
+---
+
+# Current Features
+
+## ORM models
+
+Implemented relational models:
+
+- Product
+- InventoryBatch
+- Reservation
+- Dispatch
+
+---
+
+## Database Relationships
+
+| Relationship                 | Type        |
+| ---------------------------- | ----------- |
+| Product → InventoryBatch     | One-to-Many |
+| InventoryBatch → Reservation | One-to-Many |
+| Reservation → Dispatch       | One-to-One  |
+
+---
+
+## Transactional Reservation Workflow
+
+Implemented reservation workflow:
+
+Find Inventory Batch
+→ Validate Quantity
+→ Reduce Available Inventory
+→ Create Reservation
+→ Commit Transaction
+
+Features:
+
+- rollback protection
+- inventory consistency validation
+- over-reservation prevention
+
+---
+
+## Database Constraints
+
+Implemented:
+
+- Foreign Key constraints
+- CHECK constraints
+- UNIQUE constraints
+- NOT NULL constraints
+
+Examples:
+
+- positive product price
+- non-negative inventory quantity
+- unique SKU values
+- unique batch numbers
+
+---
+
+# Faker Integration
+
+Project uses Faker for synthetic dataset generation.
+
+Generated datasets include:
 
 - products
 - inventory batches
-- inventory reservations
-- dispacth tracking
+- reservations
 
-Core focus:
+Purpose:
 
-- relational database design
-- transactional consistency
-- ORM relationships
-- rollback safety
-- inventory integrity
+- simulate scaled inventory activity
+- validate schema stability
+- expose integrity issues
+- test transactional consistency
 
 ---
 
-## Features
+# Scaled Validation
 
-- Product management
-- inventory batch tracking
-- Reservation workflow
-- Transaction-safe inventory deduction
-- Rollback protection
-- Database constraints
-- Foreign key relationships
+Project validates backend behavior under repeated synthetic workload.
 
----
+Validation includes:
 
-## Database Schema
-
-### Product
-
-Stores product details.
-
-### InventoryBatch
-
-Represnts inventory stock batches.
-
-### Reservation
-
-Tracks reserved inventory quantities.
-
-### Dispatch
-
-Tracks shipment/disptach records.
+- repeated product creation
+- repeated inventory batch generation
+- repeated reservation workflows
+- transaction rollback testing
+- relationship integrity verification
 
 ---
 
-## Technologies Used
+# Rollback Protection
 
-- Pytthon
-- PostgreSQL
-- SQLAlchemy
-- psycopg2
-- python-dotenv
+System validates transactional rollback behavior.
+
+Example scenario:
+
+Available Inventory:
+5
+
+Attempted Reservation:
+50
+
+Expected Result:
+
+- reservation fails safely
+- inventory remains unchanged
+- no negative inventory created
+
+This prevents transactional corruption.
 
 ---
 
-## Setup Instruction
+# Schema Stability Validation
 
-### Clone Repository
+Repeated validation cycles test:
+
+- ORM relationship stability
+- foreign key integrity
+- uniqueness enforcement
+- transaction safety
+- inventory consistency
+
+Validation confirms:
+
+- no negative inventory
+- no broken relationships
+- no schema corruption under repeated operations
+
+---
+
+# Project Structure
+
+```text
+inventory_dispatch_system/
+│
+├── app/
+│   ├── database/
+│   │   ├── connection.py
+│   │   ├── seed_data.py
+│   │   ├── relationship_validation.py
+│   │   ├── rollback_validation.py
+│   │   └── schema_validation.py
+│   │
+│   ├── models/
+│   │   ├── product.py
+│   │   ├── inventory_batch.py
+│   │   ├── reservation.py
+│   │   └── dispatch.py
+│   │
+│   ├── operations/
+│   │   └── inventory_ops.py
+│   │
+│   └── main.py
+│
+├── requirements.txt
+├── .env
+├── .gitignore
+└── README.md
+```
+
+---
+
+# Technologies Used
+
+| Technology     | Purpose                         |
+| -------------- | ------------------------------- |
+| Python         | Backend programming             |
+| PostgreSQL     | Relational database             |
+| SQLAlchemy ORM | Database ORM layer              |
+| Faker          | Synthetic dataset generation    |
+| psycopg2       | PostgreSQL driver               |
+| python-dotenv  | Environment variable management |
+
+---
+
+# Setup Instruction
+
+## 1. Clone Repository
 
 ```bash
 git clone <https://github.com/Abhiram-TK/inventory_dispatch_system>
 ```
 
-### Create Virtual Environment
+## 2. Create Virtual Environment
 
 ```bash
 python -m venv venv
 ```
 
-### Activate Virtual Environment
+## 3. Activate Virtual Environment
 
-Windows:
+### Windows:
 
 ```bash
 venv\Scripts\activate
 ```
 
-### Install Dependencies
+## 4. Install Dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### Configure Environemnt Variables
+## 5. Configure Environemnt Variables
 
 Create '.env':
+
+Example:
 
 ```env
 DATABASE_URL=postgresql://postgres:password@localhost:5432/inventory_db
 ```
 
-### Run Project
+## 6. Create Database Tables
 
 ```bash
 python -m app.main
@@ -111,24 +240,106 @@ python -m app.main
 
 ---
 
-## Current Project Status
+# Synthetic Dataset Generation
 
-ORM layer completed.
+Run:
 
-Implemented:
+```bash
+python -m app.database.seed_data
+```
 
-- ORM models
-- relationships
-- constraints
-- CRUD operations
+This generates:
+
+- fake products
+- fake inventory batches
+- fake reservations
+
+---
+
+# Relationship Validation
+
+Run:
+
+```bash
+python -m app.database.relationship_validation
+```
+
+Validates:
+
+- Product → Batches
+- Batch → Reservations
+- Reservation → Dispatch
+
+---
+
+# Rollback Validation
+
+Run:
+
+```bash
+python -m app.database.rollback_validation
+```
+
+Validates:
+
+- failed reservations rollback safely
+- inventory remains consistent
+
+---
+
+# Schema Stability Validation
+
+Run:
+
+```bash
+python -m app.database.schema_validation
+```
+
+Validates:
+
+- repeated transactional workload
+- inventory consistency
+- relational integrity
+- schema stability
+
+## Current Project State
+
+Completed:
+
+- ORM architecture
 - transactional reservation workflow
-- rollback verification
+- rollback protection
+- Faker-based synthetic scaling
+- schema stability validation
 
-In future, will add:
+Not Yet Implemented:
 
-- FASTAPI APIs
-- Redis caching
-- Celery workers
+- FastAPI APIs
+- Redis
+- Celery
 - Docker
-- load testing
-- deployment
+- Authentication
+- Deployment
+- Automated API testing
+
+These features will be added in future.
+
+---
+
+# Engineering Focus
+
+This project emphasizes:
+
+- transactional safety
+- relational consistency
+- scalable validation
+- backend workflow reliability
+- synthetic workload simulation
+
+instead of frontend complexity.
+
+---
+
+# License
+
+Educational backend engineering project.
