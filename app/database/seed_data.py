@@ -42,7 +42,7 @@ def seed_inventory_batches(count=300):
 
         selected_product = random.choice(products)
 
-        batch = InventoryBatch(product_id=selected_product.id, batch_number=f"BATCH-{random.randint(10000, 99999)}",
+        batch = InventoryBatch(product_id=selected_product.id, batch_number=f"BATCH-{fake.uuid4()[:8]}",
                                 quantity_available=random.randint(10, 500), expiry_date=fake.future_date())
         
         db.add(batch)
@@ -53,7 +53,7 @@ def seed_inventory_batches(count=300):
 
     db.close()
 
-def seeed_fake_reservation(count=200):
+def seed_fake_reservations(count=200):
 
     db = SessionLocal()
 
@@ -84,9 +84,9 @@ def seeed_fake_reservation(count=200):
 
 if __name__ == "__main__":
 
-    # seed_fake_product()
-    # seed_inventory_batches()
-    # seeed_fake_reservation()
+    seed_fake_product()
+    seed_inventory_batches()
+    seed_fake_reservations()
 
 
 
