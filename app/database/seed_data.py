@@ -2,6 +2,8 @@ from faker import Faker
 
 from app.database.connection import SessionLocal
 
+from app.operations.inventory_ops import reserve_inventory
+
 from app.models.product import Product
 from app.models.inventory_batch import InventoryBatch
 from app.models.reservation import Reservation
@@ -51,10 +53,40 @@ def seed_inventory_batches(count=300):
 
     db.close()
 
+def seeed_fake_reservation(count=200):
+
+    db = SessionLocal()
+
+    batches = db.query(InventoryBatch).all()
+
+    successful_reservations = 0
+
+    for _ in range(count):
+
+        selected_batch = random.choice(batches)
+
+        reserve_quantity = random.randint(1, 20)
+
+        try:
+
+            reservation = reserve_inventory(batch_id=selected_batch.id, reserve_quantity=reserve_quantity)
+
+            if reservation:
+                successful_reservations += 1
+
+        except Exception as e:
+
+            print(f"Reservation failed: {e}")
+
+    print(f"{successful_reservations} reservations created successfully!")
+
+    db.close()
+
 if __name__ == "__main__":
 
     # seed_fake_product()
     # seed_inventory_batches()
+    # seeed_fake_reservation()
 
 
 
