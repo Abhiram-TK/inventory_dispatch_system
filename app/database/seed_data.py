@@ -12,7 +12,7 @@ from app.models.dispatch import Dispatch
 import random
 
 PRODUCT_NAMES = ["Gaming Laptop", "Wireless Mouse", "Mechanical Keyboard", "USB-C Hub", "4K Monitor", "External SSD", "Bluetooth Speaker", "Office Chair", "Webcam", 
-                 "Ethernal Cable", "Power Bank", "Graphics Card", "Router", "Printer", "Smartphone", "Tablet", "Docking Station", "Microphone", "Projector", "Server Rack"]
+                 "Ethernet Cable", "Power Bank", "Graphics Card", "Router", "Printer", "Smartphone", "Tablet", "Docking Station", "Microphone", "Projector", "Server Rack"]
 
 fake = Faker()
 
