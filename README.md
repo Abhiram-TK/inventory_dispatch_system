@@ -165,13 +165,14 @@ Transaction Created
 
 Example simulated event payload:
 
-````json
+```json
 {
-    "transaction_id": 1,
-    "invoice_number": "INV-5001",
-    "product_id": 1,
-    "quantity": 2
+  "transaction_id": 1,
+  "invoice_number": "INV-5001",
+  "product_id": 1,
+  "quantity": 2
 }
+```
 
 # Project Structure
 
@@ -207,7 +208,7 @@ inventory_dispatch_system/
 ├── .env
 ├── .gitignore
 └── README.md
-````
+```
 
 ---
 
