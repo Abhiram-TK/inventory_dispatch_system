@@ -149,6 +149,30 @@ Validation confirms:
 
 ---
 
+# Event-Driven Reservation Workflow
+
+This project now includes simulated event-driven inventory reservation processing.
+
+Instead of manually triggering reservation operations directly, transaction events are emitted and processed through a dedicated event handling layer.
+
+Workflow:
+
+Transaction Created
+→ Event Emitted
+→ Reservation Event Handler
+→ Inventory Reservation Processing
+→ Success / Failure Logging
+
+Example simulated event payload:
+
+````json
+{
+    "transaction_id": 1,
+    "invoice_number": "INV-5001",
+    "product_id": 1,
+    "quantity": 2
+}
+
 # Project Structure
 
 ```text
@@ -162,6 +186,10 @@ inventory_dispatch_system/
 │   │   ├── rollback_validation.py
 │   │   └── schema_validation.py
 │   │
+|   ├── events/
+|   |   ├── __init__.py
+|   |   └── reservation_event_handler.py
+|   |
 │   ├── models/
 │   │   ├── product.py
 │   │   ├── inventory_batch.py
@@ -171,13 +199,15 @@ inventory_dispatch_system/
 │   ├── operations/
 │   │   └── inventory_ops.py
 │   │
+|   ├── simulate_transaction_event.py
+|   |
 │   └── main.py
 │
 ├── requirements.txt
 ├── .env
 ├── .gitignore
 └── README.md
-```
+````
 
 ---
 
@@ -311,12 +341,16 @@ Completed:
 - rollback protection
 - Faker-based synthetic scaling
 - schema stability validation
+- event-driven reservation workflow
+- reservation event handling
+- event logging workflow
+- validation matrix testing
 
 Not Yet Implemented:
 
 - FastAPI APIs
-- Redis
-- Celery
+- Redis Pub/Sub
+- Celery workers
 - Docker
 - Authentication
 - Deployment
