@@ -1,4 +1,4 @@
-from app.database.seed_data import (seed_fake_product, seed_inventory_batches, seed_fake_reservations)
+from app.database.seed_data import (seed_fake_products, seed_inventory_batches, seed_fake_reservations)
 
 from app.database.connection import SessionLocal
 
@@ -10,7 +10,7 @@ for cycle in range(3):
 
     print(f"\nRunning Validation Cycle: {cycle + 1}")
 
-    seed_fake_product(count=10)
+    seed_fake_products(count=10)
 
     seed_inventory_batches()
 

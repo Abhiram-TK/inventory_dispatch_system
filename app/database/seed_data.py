@@ -6,8 +6,6 @@ from app.operations.inventory_ops import reserve_inventory
 
 from app.models.product import Product
 from app.models.inventory_batch import InventoryBatch
-from app.models.reservation import Reservation
-from app.models.dispatch import Dispatch
 
 import random
 
@@ -16,11 +14,15 @@ PRODUCT_NAMES = ["Gaming Laptop", "Wireless Mouse", "Mechanical Keyboard", "USB-
 
 fake = Faker()
 
-def seed_fake_product(count=50):
+# Generate synthethic product catalog for scaled dataset simulation
+
+def seed_fake_products(count=50):
 
     db = SessionLocal()
 
     for _ in range(count):
+
+        # Select existing products to preserve FK integrity
 
         fake_product = Product(name=random.choice(PRODUCT_NAMES), sku=f"SKU-{fake.unique.random_int(min=1000, max=999999)}", price=fake.random_int(min=100, max=100000))
 
@@ -61,6 +63,9 @@ def seed_fake_reservations(count=200):
 
     successful_reservations = 0
 
+    # Use real reservation workflow instead of direct inserts
+    # to validate transaction safety and inventory consistency
+
     for _ in range(count):
 
         selected_batch = random.choice(batches)
@@ -84,7 +89,7 @@ def seed_fake_reservations(count=200):
 
 if __name__ == "__main__":
 
-    seed_fake_product()
+    seed_fake_products()
     seed_inventory_batches()
     seed_fake_reservations()
 

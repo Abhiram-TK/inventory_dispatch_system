@@ -1,5 +1,3 @@
-from sqlalchemy.orm import Session
-
 from app.database.connection import SessionLocal
 
 from app.models.product import Product
@@ -49,13 +47,19 @@ def reserve_inventory(batch_id, reserve_quantity):
             InventoryBatch.id == batch_id
         ).first()
 
+        # Validate requested inventory availability before reservation
+
         if not batch:
             raise Exception("Inventory batch not found")
 
         if batch.quantity_available < reserve_quantity:
             raise Exception("Insufficient inventory available")
 
+        # Reduce available inventory as part of transactional reservation workflow
+
         batch.quantity_available -= reserve_quantity
+
+        # Create reservation record after successful inventory validation
 
         reservation = Reservation(
             batch_id=batch.id,
@@ -72,6 +76,8 @@ def reserve_inventory(batch_id, reserve_quantity):
         return reservation
 
     except Exception as error:
+
+        # Rollback transaction to preserve inventory consistency on failure
 
         db.rollback()
 
