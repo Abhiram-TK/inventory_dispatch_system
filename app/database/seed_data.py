@@ -6,6 +6,8 @@ from app.operations.inventory_ops import reserve_inventory
 
 from app.models.product import Product
 from app.models.inventory_batch import InventoryBatch
+from app.models.dispatch import Dispatch
+from app.models.reservation import Reservation
 
 import random
 
@@ -16,7 +18,7 @@ fake = Faker()
 
 # Generate synthethic product catalog for scaled dataset simulation
 
-def seed_fake_products(count=50):
+def seed_fake_products(count=100):
 
     db = SessionLocal()
 
@@ -34,7 +36,7 @@ def seed_fake_products(count=50):
 
     db.close()
 
-def seed_inventory_batches(count=300):
+def seed_inventory_batches(count=1000):
 
     db = SessionLocal()
 

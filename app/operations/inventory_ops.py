@@ -21,10 +21,10 @@ def create_product(name, sku, price):
     new_product = Product(name=name, sku=sku, price=price)
 
     db.add(new_product)
-
     db.commit()
-
     db.refresh(new_product)
+
+    logger.info(f"Invenotry created: {new_product.sku}")
 
     db.close()
 
@@ -47,11 +47,10 @@ def create_inventory_batch(product_id, batch_number, quantity_available, expiry_
     new_batch = InventoryBatch(product_id=product_id, batch_number=batch_number, quantity_available= quantity_available, expiry_date=expiry_date)
 
     db.add(new_batch)
-
-
     db.commit()
-
     db.refresh(new_batch)
+
+    logger.info(f"Inventory batch created: {new_batch.batch_number}")
 
     db.close()
 
@@ -63,11 +62,7 @@ def reserve_inventory(batch_id, reserve_quantity):
 
     try:
 
-        batch = db.query(InventoryBatch).filter(
-            InventoryBatch.id == batch_id
-        ).first()
-
-        # Validate requested inventory availability before reservation
+        batch = db.query(InventoryBatch).filter(InventoryBatch.id == batch_id).first()
 
         if not batch:
             raise Exception("Inventory batch not found")
@@ -75,33 +70,23 @@ def reserve_inventory(batch_id, reserve_quantity):
         if batch.quantity_available < reserve_quantity:
             raise Exception("Insufficient inventory available")
 
-        # Reduce available inventory as part of transactional reservation workflow
-
         batch.quantity_available -= reserve_quantity
 
-        # Create reservation record after successful inventory validation
-
-        reservation = Reservation(
-            batch_id=batch.id,
-            reserved_quantity=reserve_quantity,
-            status="RESERVED"
-        )
+        reservation = Reservation(batch_id=batch.id, reserved_quantity=reserve_quantity, status="RESERVED")
 
         db.add(reservation)
-
         db.commit()
-
         db.refresh(reservation)
+
+        logger.info(f"Reservation created with ID: {reservation.id}")
 
         return reservation
 
     except Exception as error:
 
-        # Rollback transaction to preserve inventory consistency on failure
-
         db.rollback()
 
-        print(f"Transaction failed: {error}")
+        logger.error(f"Transaction failed: {error}")
 
         raise
 
