@@ -6,6 +6,8 @@ from app.models.reservation import Reservation
 
 from app.core.logger import logger
 
+from sqlalchemy.exc import SQLAlchemyError
+
 def create_product(name, sku, price):
     
     db = SessionLocal()
@@ -65,9 +67,15 @@ def reserve_inventory(batch_id, reserve_quantity):
         batch = db.query(InventoryBatch).filter(InventoryBatch.id == batch_id).first()
 
         if not batch:
+
+            logger.error(f"Inventory not found: Batch ID {batch_id}")
+
             raise Exception("Inventory batch not found")
 
         if batch.quantity_available < reserve_quantity:
+
+            logger.error(f"Stock exhaustion: Batch {batch.id} has only {batch.quantity_available}, requested {reserve_quantity}")
+
             raise Exception("Insufficient inventory available")
 
         batch.quantity_available -= reserve_quantity
@@ -82,11 +90,19 @@ def reserve_inventory(batch_id, reserve_quantity):
 
         return reservation
 
+    except SQLAlchemyError as error:
+
+        db.rollback()
+
+        logger.error(f"Database exception: {error}")
+
+        raise
+
     except Exception as error:
 
         db.rollback()
 
-        logger.error(f"Transaction failed: {error}")
+        logger.error(f"Reservation failed: {error}")
 
         raise
 
