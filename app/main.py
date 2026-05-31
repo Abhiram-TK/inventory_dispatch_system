@@ -7,6 +7,10 @@ from datetime import date
 
 from app.operations.inventory_ops import (create_product, create_inventory_batch,reserve_inventory)
 
+from app.core.logger import logger
+
+logger.info("Inventory system started")
+
 print("Testing transactional reservation workflow...")
 
 product = create_product(name="Mousepad", sku="PAD004", price=750)

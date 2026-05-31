@@ -4,9 +4,19 @@ from app.models.product import Product
 from app.models.inventory_batch import InventoryBatch
 from app.models.reservation import Reservation
 
+from app.core.logger import logger
+
 def create_product(name, sku, price):
     
     db = SessionLocal()
+
+    existing_product = (db.query(Product).filter(Product.sku == sku).first())
+
+    if existing_product:
+
+        logger.info(f"Product already exists: {sku}")
+
+        return existing_product
 
     new_product = Product(name=name, sku=sku, price=price)
 
@@ -23,6 +33,16 @@ def create_product(name, sku, price):
 def create_inventory_batch(product_id, batch_number, quantity_available, expiry_date):
 
     db = SessionLocal()
+
+    existing_batch = (db.query(InventoryBatch).filter(InventoryBatch.batch_number == batch_number).first())
+
+    if existing_batch:
+
+        logger.info(f"Batch already exists: {batch_number}")
+
+        db.close()
+
+        return existing_batch
 
     new_batch = InventoryBatch(product_id=product_id, batch_number=batch_number, quantity_available= quantity_available, expiry_date=expiry_date)
 
