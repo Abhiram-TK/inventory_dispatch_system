@@ -11,28 +11,42 @@ from app.models.reservation import Reservation
 
 import random
 
-PRODUCT_NAMES = ["Gaming Laptop", "Wireless Mouse", "Mechanical Keyboard", "USB-C Hub", "4K Monitor", "External SSD", "Bluetooth Speaker", "Office Chair", "Webcam", 
-                 "Ethernet Cable", "Power Bank", "Graphics Card", "Router", "Printer", "Smartphone", "Tablet", "Docking Station", "Microphone", "Projector", "Server Rack"]
+PRODUCT_CATALOG = { "Laptop": [("Dell Latitude 5440", 72000), ("HP ProBook 450 G9", 68000), ("Lenovo ThinkPad E14", 75000)],
+
+                    "Monitor": [("LG 24MP400", 9500), ("Samsung Essential S3", 12000), ("Dell P2422H", 18500)],
+
+                    "Mouse": [("Logitech M90", 450), ("Logitech M331", 1200), ("Logitech MX Master 3", 8500)],
+
+                    "Keyboard": [("Logitech K120", 650), ("Logitech MK270", 1800), ("Keychron K2", 7800)],
+
+                    "Printer": [("HP LaserJet MFP 136w", 15500), ("Epson EcoTank L3211", 14500), ("Canon PIXMA G3010", 16500)],
+
+                    "Router": [("TP-Link Archer C6", 2600), ("TP-Link Archer AX23", 6200), ("Asus RT-AX58U", 14500)]}
 
 fake = Faker()
 
-# Generate synthethic product catalog for scaled dataset simulation
-
-def seed_fake_products(count=100):
+def seed_fake_products():
 
     db = SessionLocal()
 
-    for _ in range(count):
+    for category in PRODUCT_CATALOG:
 
-        # Select existing products to preserve FK integrity
+        for product_name, price in PRODUCT_CATALOG[category]:
 
-        fake_product = Product(name=random.choice(PRODUCT_NAMES), sku=f"SKU-{fake.unique.random_int(min=1000, max=999999)}", price=fake.random_int(min=100, max=100000))
+            sku = (category[:3].upper() + "-" + product_name.upper().replace(" ", "").replace("-", ""))
 
-        db.add(fake_product)
+            existing_product = (db.query(Product).filter(Product.sku == sku).first())
+
+            if existing_product:
+                continue
+
+            product = Product(name=product_name, sku=sku, price=price)
+
+            db.add(product)
 
     db.commit()
 
-    print(f"{count} fake products inserted successfully.")
+    print("Realistic product catalog inserted.")
 
     db.close()
 
@@ -64,9 +78,6 @@ def seed_fake_reservations(count=200):
     batches = db.query(InventoryBatch).all()
 
     successful_reservations = 0
-
-    # Use real reservation workflow instead of direct inserts
-    # to validate transaction safety and inventory consistency
 
     for _ in range(count):
 
