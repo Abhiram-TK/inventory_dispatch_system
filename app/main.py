@@ -1,5 +1,7 @@
 from fastapi import FastAPI
 
+import app.models
+
 from app.api.inventory_routes import router as inventory_router
 from app.api.dispatch_routes import router as dispatch_router
 

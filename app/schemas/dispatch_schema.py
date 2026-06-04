@@ -1,11 +1,19 @@
 from pydantic import BaseModel
 
-class DispatchRequest(BaseModel):
+class DispatchCreate(BaseModel):
 
     reservation_id: int
     vehicle_number: str
 
 class DispatchResponse(BaseModel):
 
-    dispatch_id: int
+    id: int
+    reservation_id: int
+    vehicle_number: str
     status: str
+
+    class Config:
+
+        from_attributes = True
+
+    
