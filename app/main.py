@@ -1,60 +1,22 @@
-from app.models.product import Product
-from app.models.inventory_batch import InventoryBatch
-from app.models.dispatch import Dispatch
-from app.models.reservation import Reservation
+from fastapi import FastAPI
 
-from app.database.connection import SessionLocal
-
-from app.operations.inventory_ops import reserve_inventory
+from app.api.inventory_routes import router as inventory_router
+from app.api.dispatch_routes import router as dispatch_router
 
 from app.core.logger import logger
 
-logger.info("Inventory system started")
+app = FastAPI(title="Inventory Reservation & Dispatch System", version="1.0.0")
 
-print("\nTesting transactional reservation workflow...")
+logger.info("Inventory API started")
 
-db = SessionLocal()
+app.include_router(inventory_router)
 
-product = db.query(Product).first()
+app.include_router(dispatch_router)
 
-if not product:
 
-    raise Exception("No products found. Run seed_data.py first.")
+@app.get("/")
+def home():
 
-batch = (db.query(InventoryBatch).filter(InventoryBatch.product_id == product.id).first())
-
-if not batch:
-
-    raise Exception("No inventory batches found. Run seed_data.py first.")
-
-print(f"Product ID: {product.id}")
-print(f"Batch ID: {batch.id}")
-print(f"Available Quantity: {batch.quantity_available}")
-
-print("\nSUCCESS CASE")
-
-reservation = reserve_inventory(batch_id=batch.id, reserve_quantity=4)
-
-db.close()
-
-db = SessionLocal()
-
-updated_batch = (db.query(InventoryBatch).filter(InventoryBatch.id == batch.id).first())
-
-if reservation:
-    print("Reservation successful")
-    print(f"Reserved Quantity: {reservation.reserved_quantity}")
-    print(f"Available Quantity After Reservation: {updated_batch.quantity_available}")
-
-print("\nFAILURE CASE - REQUESTING 50000 UNITS")
-
-try:
-
-     reserve_inventory(batch_id=batch.id,reserve_quantity=50000)
-
-except Exception as e:
-
-    print("Over-reservation blocked safely")
-
-db.close()
-
+    return {
+        "message": "Inventory Reservation & Dispatch System Running"
+    }
