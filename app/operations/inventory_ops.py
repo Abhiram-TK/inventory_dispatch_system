@@ -32,7 +32,7 @@ def create_product(name, sku, price):
 
     return new_product
 
-def create_inventory_batch(product_id, batch_number, quantity_available, expiry_date):
+def create_inventory_batch(product_id, batch_number, quantity_available, manufacturing_date, warranty_months):
 
     db = SessionLocal()
 
@@ -46,7 +46,8 @@ def create_inventory_batch(product_id, batch_number, quantity_available, expiry_
 
         return existing_batch
 
-    new_batch = InventoryBatch(product_id=product_id, batch_number=batch_number, quantity_available= quantity_available, expiry_date=expiry_date)
+    new_batch = InventoryBatch(product_id=product_id, batch_number=batch_number, quantity_available= quantity_available, manufacturing_date=manufacturing_date, 
+                               warranty_months=warranty_months)
 
     db.add(new_batch)
     db.commit()

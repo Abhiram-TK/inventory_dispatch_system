@@ -15,5 +15,3 @@ class DispatchResponse(BaseModel):
     class Config:
 
         from_attributes = True
-
-    

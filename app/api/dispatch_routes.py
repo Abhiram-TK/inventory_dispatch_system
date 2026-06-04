@@ -9,13 +9,17 @@ from app.models.dispatch import Dispatch
 
 from app.schemas.dispatch_schema import (DispatchCreate, DispatchResponse)
 
+from app.core.logger import logger
+
 router = APIRouter()
 
-@router.get("/dispatch")
+@router.get("/dispatch", response_model=list[DispatchResponse])
 
-def get_dispatch():
+def get_dispatch(db: Session = Depends(get_db)):
 
-    return {"message": "Dispatch endpoint working"}
+    dispatches = db.query(Dispatch).all()
+
+    return dispatches
 
 @router.post("/dispatch", response_model=DispatchResponse)
 
@@ -40,5 +44,11 @@ def create_dispatch(dispatch_data: DispatchCreate, db: Session = Depends(get_db)
     db.commit()
 
     db.refresh(dispatch)
+
+    logger.info(
+    f"Dispatch created | "
+    f"Dispatch ID: {dispatch.id} | "
+    f"Reservation ID: {reservation.id} | "
+    f"Vehicle: {dispatch.vehicle_number}")
 
     return dispatch
