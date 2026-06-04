@@ -16,7 +16,9 @@ class InventoryBatch(Base):
 
     quantity_available = Column(Integer, nullable=False)
 
-    expiry_date = Column(Date, nullable=False)
+    manufacturing_date = Column(Date, nullable=False)
+
+    warranty_months = Column(Integer, nullable=False)
 
     product = relationship("Product", back_populates="batches")
 

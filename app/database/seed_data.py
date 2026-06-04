@@ -1,5 +1,7 @@
 from faker import Faker
 
+from datetime import date, timedelta, datetime
+
 from app.database.connection import SessionLocal
 
 from app.operations.inventory_ops import reserve_inventory
@@ -50,18 +52,40 @@ def seed_fake_products():
 
     db.close()
 
+CATEGORY_WARRANTY = {"Laptop": 36, "Monitor": 24, "Mouse": 12, "Keyboard": 12, "Printer": 24, "Router": 24}
+
+PRODUCT_CATEGORY_MAP = {}
+
+for category, products in PRODUCT_CATALOG.items():
+
+    for product_name, price in products:
+
+        PRODUCT_CATEGORY_MAP[product_name] = category
+
 def seed_inventory_batches(count=1000):
 
     db = SessionLocal()
 
     products = db.query(Product).all()
 
+    if not products:
+
+        raise Exception("No products found. Run seed_fake_products() first.")
+
+    today_code = datetime.now().strftime("%y%m%d")
+
     for _ in range(count):
 
         selected_product = random.choice(products)
 
-        batch = InventoryBatch(product_id=selected_product.id, batch_number=f"BATCH-{fake.uuid4()[:8]}",
-                                quantity_available=random.randint(10, 500), expiry_date=fake.future_date())
+        manufacturing_date = fake.date_between(start_date="-2y", end_date="-3m")
+
+        category = PRODUCT_CATEGORY_MAP[selected_product.name]
+
+        warranty = CATEGORY_WARRANTY[category]
+
+        batch = InventoryBatch(product_id=selected_product.id, batch_number=f"WH1-{today_code}-{str(_ + 1).zfill(4)}", quantity_available=random.randint(10, 500), 
+                               manufacturing_date=manufacturing_date, warranty_months=warranty)
         
         db.add(batch)
     
@@ -105,14 +129,3 @@ if __name__ == "__main__":
     seed_fake_products()
     seed_inventory_batches()
     seed_fake_reservations()
-
-
-
-
-
-
-
-
-        
-
-
