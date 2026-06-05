@@ -10,11 +10,19 @@ print("\n------ PRODUCT --> BATCHES VALIDATION ------")
 
 product = db.query(Product).first()
 
+if not product:
+
+    print("No products found")
+
+    db.close()
+
+    exit()
+
 print(f"\nProduct: {product.name}")
 
 print("\nLinked Inventory Batches:")
 
-for batch in product.batches:
+for batch in sorted(product.batches, key=lambda batch: batch.id):
 
     print(f"Batch Number: {batch.batch_number} | "
           f"Quantity: {batch.quantity_available}")
@@ -27,19 +35,32 @@ print(f"\nBatch: {batch.batch_number}")
 
 print("\nLinked Reservations:")
 
+print(f"\nTotal Reservations: "
+      f"{len(batch.reservations)}")
+
 for reservation in batch.reservations:
 
-    print(f"Reservation ID: {reservation.id} | "
+    print(f"\nReservation ID: {reservation.id} | "
           f"Reserved Quantity: {reservation.reserved_quantity}")
     
 print("\n------ RESERVATION --> DISPATCH VALIDATION ------")
 
 reservation = db.query(Reservation).first()
 
-print(f"\nResevation ID: {reservation.id}")
+print(f"\nReservation ID: {reservation.id}")
 
 print("\nDispatch Relationship:")
 
-print(reservation.dispatch)
+if reservation.dispatch:
+
+    print(
+        f"Dispatch ID: {reservation.dispatch.id} | "
+        f"Vehicle Number: {reservation.dispatch.vehicle_number} | "
+        f"Status: {reservation.dispatch.status}"
+    )
+
+else:
+
+    print("No dispatch found")
 
 db.close()

@@ -7,11 +7,7 @@ class DispatchCreate(BaseModel):
 
 class DispatchResponse(BaseModel):
 
-    id: int
+    dispatch_id: int
     reservation_id: int
     vehicle_number: str
     status: str
-
-    class Config:
-
-        from_attributes = True

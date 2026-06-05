@@ -9,26 +9,49 @@ from app.models.reservation import Reservation
 from app.models.inventory_batch import InventoryBatch
 from app.models.dispatch import Dispatch
 
+from app.core.logger import logger
+
 @celery_app.task
 def expire_reservation():
 
+    logger.info("Reservation cleanup worker started")
+
     db = SessionLocal()
 
-    timeout_limit = datetime.utcnow() - timedelta(minutes=1)
+    try:
 
-    reservations = (db.query(Reservation).filter(Reservation.status == "RESERVED", Reservation.reserved_at < timeout_limit).all())
+        timeout_limit = datetime.utcnow() - timedelta(minutes=1)
 
-    for reservation in reservations:
+        reservations = (db.query(Reservation).filter(Reservation.status == "RESERVED", Reservation.reserved_at < timeout_limit).all())
 
-        batch = (db.query(InventoryBatch).filter(InventoryBatch.id == reservation.batch_id).first())
+        logger.info(f"Expired reservations found: {len(reservations)}")
 
-        if batch:
+        for reservation in reservations:
 
-            batch.quantity_available += reservation.reserved_quantity
+            batch = (db.query(InventoryBatch).filter(InventoryBatch.id == reservation.batch_id).first())
 
-        reservation.status = "EXPIRED"
+            if batch:
 
-    db.commit()
-    db.close()
+                batch.quantity_available += reservation.reserved_quantity
 
-    return "Reservation cleanup completed"
+                logger.info(f"Inventory restored | Batch ID: {batch.id} | Quantity Restored: {reservation.reserved_quantity}")
+
+            reservation.status = "EXPIRED"
+
+            logger.info(f"Reservation expired | Reservation ID: {reservation.id}")
+
+        db.commit()
+
+        logger.info("Reservation cleanup completed successfully")
+
+    except Exception as e:
+    
+        db.rollback()
+    
+        logger.error(f"Reservation cleanup worker failed: {str(e)}")
+
+        raise
+
+    finally:
+
+        db.close()

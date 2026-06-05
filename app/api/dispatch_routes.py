@@ -11,15 +11,9 @@ from app.schemas.dispatch_schema import (DispatchCreate, DispatchResponse)
 
 from app.core.logger import logger
 
+from typing import Optional
+
 router = APIRouter()
-
-@router.get("/dispatch", response_model=list[DispatchResponse])
-
-def get_dispatch(db: Session = Depends(get_db)):
-
-    dispatches = db.query(Dispatch).all()
-
-    return dispatches
 
 @router.post("/dispatch", response_model=DispatchResponse)
 
@@ -51,4 +45,24 @@ def create_dispatch(dispatch_data: DispatchCreate, db: Session = Depends(get_db)
     f"Reservation ID: {reservation.id} | "
     f"Vehicle: {dispatch.vehicle_number}")
 
-    return dispatch
+    return {"dispatch_id": dispatch.id, "reservation_id": dispatch.reservation_id, "vehicle_number": dispatch.vehicle_number, "status": dispatch.status}
+
+@router.get("/dispatch", response_model=list[DispatchResponse])
+
+def get_dispatch(reservation_id: Optional[int] = None,db: Session = Depends(get_db)):
+
+    query = db.query(Dispatch)
+
+    if reservation_id:
+
+        query = query.filter(Dispatch.reservation_id == reservation_id)
+
+    dispatches = query.all()
+
+    response = []
+
+    for dispatch in dispatches:
+
+        response.append({"dispatch_id": dispatch.id, "reservation_id": dispatch.reservation_id, "vehicle_number": dispatch.vehicle_number, "status": dispatch.status})
+
+    return response
