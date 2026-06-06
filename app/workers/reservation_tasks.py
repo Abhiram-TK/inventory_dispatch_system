@@ -11,6 +11,8 @@ from app.models.dispatch import Dispatch
 
 from app.core.logger import logger
 
+from app.core.config import settings
+
 @celery_app.task
 def expire_reservation():
 
@@ -20,7 +22,7 @@ def expire_reservation():
 
     try:
 
-        timeout_limit = datetime.utcnow() - timedelta(minutes=1)
+        timeout_limit = datetime.utcnow() - timedelta(minutes=settings.RESERVATION_TIMEOUT_MINUTES)
 
         reservations = (db.query(Reservation).filter(Reservation.status == "RESERVED", Reservation.reserved_at < timeout_limit).all())
 
@@ -34,7 +36,7 @@ def expire_reservation():
 
                 batch.quantity_available += reservation.reserved_quantity
 
-                logger.info(f"Inventory restored | Batch ID: {batch.id} | Quantity Restored: {reservation.reserved_quantity}")
+                logger.info(f"Inventory restored | Batch ID: {batch.id} | Quantity Restored: {reservation.reserved_quantity} | Available Quantity: {batch.quantity_available}")
 
             reservation.status = "EXPIRED"
 

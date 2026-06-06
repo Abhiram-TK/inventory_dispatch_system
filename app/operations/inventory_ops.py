@@ -108,7 +108,12 @@ def reserve_inventory(batch_id, reserve_quantity):
 
         db.rollback()
 
-        logger.error(f"Database exception: {error}")
+        logger.error(
+            f"Database exception | "
+            f"Batch ID: {batch_id} | "
+            f"Requested Quantity: {reserve_quantity} | "
+            f"Error: {error}"
+        )
 
         raise
 
@@ -116,7 +121,12 @@ def reserve_inventory(batch_id, reserve_quantity):
 
         db.rollback()
 
-        logger.error(f"Reservation failed: {error}")
+        logger.error(
+            f"Reservation failed | "
+            f"Batch ID: {batch_id} | "
+            f"Requested Quantity: {reserve_quantity} | "
+            f"Error: {error}"
+        )
 
         raise
 
