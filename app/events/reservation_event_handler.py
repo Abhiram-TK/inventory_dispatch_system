@@ -77,7 +77,7 @@ def process_transaction_created(payload):
 
     db = SessionLocal()
 
-    batch = db.query(InventoryBatch).filter(InventoryBatch.product_id == product_id).first()
+    batch = db.query(InventoryBatch).filter(InventoryBatch.product_id == product_id).order_by(InventoryBatch.manufacturing_date).filter(InventoryBatch.quantity_available >= quantity).first()
 
     if not batch:
 
@@ -103,21 +103,20 @@ def process_transaction_created(payload):
 
         logger.info(f"Reserved Quantity: {reservation.reserved_quantity}")
 
+        return {"transaction_id": transaction_id, "reservation_id": reservation.id, "batch_id": reservation.batch_id, "status": reservation.status}
+
     except Exception as e:
 
         logger.error("Inventory reservation failed.")
 
         logger.error(f"Reason: {str(e)}")
-        
-        logger.error("Possible causes:")
 
-        logger.error("- insufficient inventory")
+        return {"transaction_id": transaction_id, "invoice_number": invoice_number, "status": "FAILED", "error": str(e)}
 
-        logger.error("- invalid inventory batch")
+    finally:
 
-        logger.error("- reservation rollback triggered")
+        logger.info("Event processing completed.")
 
-    logger.info("Event processing completed.")
+        db.close()
 
-    db.close()
 

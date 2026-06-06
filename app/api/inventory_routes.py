@@ -25,7 +25,7 @@ def get_inventory(product_id: Optional[int] = Query(None, gt=0, description="Pro
 
         query = query.filter(InventoryBatch.product_id == product_id)
 
-    inventory = query.order_by(InventoryBatch.id).all()
+    inventory = query.order_by(InventoryBatch.manufacturing_date).all()
 
     response = []
 
