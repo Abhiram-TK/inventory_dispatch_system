@@ -65,13 +65,20 @@ def reserve_inventory(batch_id, reserve_quantity):
 
     try:
 
-        batch = db.query(InventoryBatch).filter(InventoryBatch.id == batch_id).first()
+        batch = db.query(InventoryBatch).filter(InventoryBatch.id == batch_id).with_for_update().first()
 
         if not batch:
 
             logger.error(f"Inventory not found: Batch ID {batch_id}")
 
             raise Exception("Inventory batch not found")
+        
+        logger.info(
+            f"Attempting reservation | "
+            f"Batch ID: {batch.id} | "
+            f"Available Quantity: {batch.quantity_available} | "
+            f"Requested Quantity: {reserve_quantity}"
+        )
 
         if batch.quantity_available < reserve_quantity:
 
@@ -87,7 +94,13 @@ def reserve_inventory(batch_id, reserve_quantity):
         db.commit()
         db.refresh(reservation)
 
-        logger.info(f"Reservation created with ID: {reservation.id}")
+        logger.info(
+            f"Reservation created | "
+            f"Reservation ID: {reservation.id} | "
+            f"Batch ID: {batch.id} | "
+            f"Reserved Quantity: {reserve_quantity} | "
+            f"Remaining Quantity: {batch.quantity_available}"
+        )
 
         return reservation
 
