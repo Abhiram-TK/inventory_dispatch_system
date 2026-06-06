@@ -13,8 +13,8 @@ from app.core.logger import logger
 
 from app.core.config import settings
 
-@celery_app.task
-def expire_reservation():
+@celery_app.task(bind=True, max_retries=3)
+def expire_reservation(self):
 
     logger.info("Reservation cleanup worker started")
 
@@ -52,7 +52,12 @@ def expire_reservation():
     
         logger.error(f"Reservation cleanup worker failed: {str(e)}")
 
-        raise
+        logger.warning(
+            f"Retrying reservation cleanup "
+            f"(Attempt {self.request.retries + 1}/3)"
+        )
+
+        raise self.retry(exc=e, countdown=10)
 
     finally:
 
