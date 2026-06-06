@@ -4,6 +4,7 @@ from app.models.inventory_batch import InventoryBatch
 from app.models.dispatch import Dispatch
 from app.models.reservation import Reservation
 from app.models.product import Product
+from app.models.processed_transaction import ProcessedTransaction
 
 from app.operations.inventory_ops import reserve_inventory
 
@@ -77,6 +78,20 @@ def process_transaction_created(payload):
 
     db = SessionLocal()
 
+    existing_transaction = (db.query(ProcessedTransaction).filter(ProcessedTransaction.transaction_id == transaction_id).first())
+
+    if existing_transaction:
+
+        logger.warning(
+        f"Duplicate transaction detected | "
+        f"Transaction ID: {transaction_id} | "
+        f"Invoice: {invoice_number}"
+    )
+
+        db.close()
+
+        return {"transaction_id": transaction_id, "status": "DUPLICATE_EVENT"}    
+
     batch = db.query(InventoryBatch).filter(InventoryBatch.product_id == product_id).order_by(InventoryBatch.manufacturing_date).filter(InventoryBatch.quantity_available >= quantity).first()
 
     if not batch:
@@ -96,6 +111,12 @@ def process_transaction_created(payload):
     try:
 
         reservation = reserve_inventory(batch_id=batch.id, reserve_quantity=quantity)
+
+        processed_transaction = (ProcessedTransaction(transaction_id=transaction_id, invoice_number=invoice_number))
+
+        db.add(processed_transaction)
+
+        db.commit()
 
         logger.info("Inventory reserved successfully!")
 
