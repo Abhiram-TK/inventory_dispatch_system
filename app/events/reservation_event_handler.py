@@ -11,6 +11,58 @@ from app.core.logger import logger
 
 def process_transaction_created(payload):
 
+    required_keys = ["transaction_id", "invoice_number", "product_id", "quantity"]
+
+    missing_keys = []
+
+    for key in required_keys:
+
+        if key not in payload:
+
+            missing_keys.append(key)
+
+    if missing_keys:
+
+        logger.error(f"Invalid payload. Missing keys: {missing_keys}")
+
+        return
+            
+    if not isinstance(payload["transaction_id"], int):
+
+        logger.error("Invalid transaction_id type")
+
+        return
+            
+    if not isinstance(payload["invoice_number"], str):
+
+        logger.error("Invalid invoice_number type")
+
+        return
+            
+    if not payload["invoice_number"].strip():
+
+        logger.error("Invoice number cannot be empty")
+
+        return
+            
+    if not isinstance(payload["product_id"], int):
+
+        logger.error("Invalid product_id type")
+
+        return
+            
+    if not isinstance(payload["quantity"], int):
+
+        logger.error("Invalid quantity type")
+
+        return
+            
+    if payload["quantity"] <= 0:
+
+        logger.error(f"Invalid quantity: {payload['quantity']}")
+
+        return
+
     logger.info("\nTRANSACTION_CREATED event received")
 
     logger.info(f"\nPayload: {payload}")
