@@ -13,9 +13,20 @@ from app.operations.inventory_ops import reserve_inventory
 
 from typing import Optional
 
-router = APIRouter()
+router = APIRouter(tags=["Inventory"])
 
-@router.get("/inventory", response_model=list[InventoryResponse])
+@router.get("/inventory", response_model=list[InventoryResponse], summary="View Inventory Batches", description="""
+            Retrieve inventory batches currently available in stock.
+
+            Features:
+
+            - Optional filtering by Product ID
+            - FIFO visibility using manufacturing dates
+            - Available quantity tracking
+            - Batch-level inventory inspection
+
+            Used before creating reservations.
+            """)
 
 def get_inventory(product_id: Optional[int] = Query(None, gt=0, description="Product ID"), db: Session = Depends(get_db)):
 
@@ -36,7 +47,18 @@ def get_inventory(product_id: Optional[int] = Query(None, gt=0, description="Pro
 
     return response
 
-@router.post("/inventory/reserve", response_model=ReservationResponse)
+@router.post("/inventory/reserve", response_model=ReservationResponse, summary="Reserve Inventory", description="""
+             Reserve inventory from a specific batch.
+
+             This operation:
+
+             - Validates inventory availability
+             - Applies row-level locking
+             - Creates a reservation record
+             - Reduces available inventory
+
+             Used before dispatch creation.
+            """)
 
 def create_reservation(reservation_data: ReservationRequest):
 

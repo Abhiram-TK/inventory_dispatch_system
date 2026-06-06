@@ -13,9 +13,20 @@ from app.core.logger import logger
 
 from typing import Optional
 
-router = APIRouter()
+router = APIRouter(tags=["Dispatch"])
 
-@router.post("/dispatch", response_model=DispatchResponse)
+@router.post("/dispatch", response_model=DispatchResponse, summary="Create Dispatch", description="""
+             Create a dispatch for an existing reservation.
+
+             This operation:
+
+             - Validates reservation existence
+             - Ensures reservation is in RESERVED state
+             - Creates dispatch record
+             - Updates reservation status to DISPATCHED
+
+             Represents inventory leaving the warehouse.
+             """)
 
 def create_dispatch(dispatch_data: DispatchCreate, db: Session = Depends(get_db)):
 
@@ -47,7 +58,16 @@ def create_dispatch(dispatch_data: DispatchCreate, db: Session = Depends(get_db)
 
     return {"dispatch_id": dispatch.id, "reservation_id": dispatch.reservation_id, "vehicle_number": dispatch.vehicle_number, "status": dispatch.status}
 
-@router.get("/dispatch", response_model=list[DispatchResponse])
+@router.get("/dispatch", response_model=list[DispatchResponse], summary="View Dispatches", description="""
+            Retrieve dispatch records.
+
+            Supports:
+
+            - Viewing all dispatches
+            - Filtering by Reservation ID
+
+            Used to track completed inventory shipments.
+            """)
 
 def get_dispatch(reservation_id: Optional[int] = None,db: Session = Depends(get_db)):
 

@@ -10,9 +10,25 @@ from app.schemas.reservation_schema import ReservationListResponse
 
 from typing import Optional
 
-router = APIRouter()
+router = APIRouter(tags=["Reservations"])
 
-@router.get("/reservations", response_model=list[ReservationListResponse])
+@router.get("/reservations", response_model=list[ReservationListResponse], summary="View Reservations", description="""
+            Retrieve reservation records.
+
+            Supports:
+
+            - Viewing all reservations
+            - Filtering by Reservation ID
+            - Tracking reservation status
+
+            Possible statuses:
+
+            - RESERVED
+            - DISPATCHED
+            - EXPIRED
+
+            Used to monitor inventory allocation lifecycle.
+            """)
 
 def get_reservations(reservation_id: Optional[int] = None,db: Session = Depends(get_db)):
 

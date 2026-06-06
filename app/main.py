@@ -20,7 +20,16 @@ app.include_router(inventory_router)
 app.include_router(reservation_router)
 app.include_router(dispatch_router)
 
-@app.get("/")
+@app.get("/", tags=["System"], summary="Health Check", description="""
+         Verify that the Inventory Reservation & Dispatch System is running.
+
+         Used for:
+
+         - Service health validation
+         - Deployment verification
+         - Monitoring checks
+         """)
+
 def home():
 
     return {"message": "Inventory Reservation & Dispatch System Running"}

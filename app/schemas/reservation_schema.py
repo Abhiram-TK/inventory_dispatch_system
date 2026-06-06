@@ -7,6 +7,10 @@ class ReservationRequest(BaseModel):
     batch_id: int
     quantity: int
 
+    class Config:
+
+        json_schema_extra = {"example": {"batch_id": 47, "quantity": 5}} 
+
 class ReservationResponse(BaseModel):
 
     reservation_id: int
