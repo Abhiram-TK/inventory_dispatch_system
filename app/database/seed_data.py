@@ -74,6 +74,8 @@ def seed_inventory_batches(count=1000):
 
     today_code = datetime.now().strftime("%y%m%d")
 
+    existing_batch_count = db.query(InventoryBatch).count()
+
     for _ in range(count):
 
         selected_product = random.choice(products)
@@ -84,7 +86,7 @@ def seed_inventory_batches(count=1000):
 
         warranty = CATEGORY_WARRANTY[category]
 
-        batch = InventoryBatch(product_id=selected_product.id, batch_number=f"WH1-{today_code}-{str(_ + 1).zfill(4)}", quantity_available=random.randint(10, 500), 
+        batch = InventoryBatch(product_id=selected_product.id, batch_number=f"WH1-{today_code}-{str(existing_batch_count + _ + 1).zfill(4)}", quantity_available=random.randint(10, 500), 
                                manufacturing_date=manufacturing_date, warranty_months=warranty)
         
         db.add(batch)

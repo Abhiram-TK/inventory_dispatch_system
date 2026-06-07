@@ -7,4 +7,3 @@ payload = {"transaction_id": 1001, "invoice_number": "INV-1001", "product_id": 1
 process_transaction_created(payload)
 
 print("\n------ EVENT SIMULATION COMPLETED ------")
-

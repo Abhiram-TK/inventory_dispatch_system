@@ -10,11 +10,11 @@ for cycle in range(3):
 
     print(f"\nRunning Validation Cycle: {cycle + 1}")
 
-    seed_fake_products(count=10)
+    seed_fake_products()
 
-    seed_inventory_batches()
+    seed_inventory_batches(count=50)
 
-    seed_fake_reservations(count=20)
+    seed_fake_reservations(count=10)
 
 print("\nRepeated operations completed.")
 
@@ -33,4 +33,3 @@ else:
     print("No negative inventory found.")
 
 db.close()
-

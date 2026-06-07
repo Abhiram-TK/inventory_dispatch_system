@@ -7,7 +7,7 @@ from app.operations.inventory_ops import reserve_inventory
 db = SessionLocal()
 
 small_batch = db.query(InventoryBatch)\
-    .filter(InventoryBatch.quantity_available <=5)\
+    .filter(InventoryBatch.quantity_available.between(1,20))\
     .first()
 
 if not small_batch:
@@ -49,7 +49,3 @@ else:
     print("\nRollback Validation PASSED!")
 
 db.close()
-
-
-
-

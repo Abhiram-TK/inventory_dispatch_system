@@ -22,9 +22,12 @@ print(f"\nProduct: {product.name}")
 
 print("\nLinked Inventory Batches:")
 
-for batch in sorted(product.batches, key=lambda batch: batch.id):
+print("\nShowing first 10 batches...")
+
+for batch in sorted(product.batches, key=lambda batch: batch.manufacturing_date)[:10]:
 
     print(f"Batch Number: {batch.batch_number} | "
+          f"MFG Date: {batch.manufacturing_date} | "
           f"Quantity: {batch.quantity_available}")
     
 print("\n------ BATCH --> RESERVATIONS VALIDATION ------")
@@ -38,7 +41,7 @@ print("\nLinked Reservations:")
 print(f"\nTotal Reservations: "
       f"{len(batch.reservations)}")
 
-for reservation in batch.reservations:
+for reservation in sorted(batch.reservations, key=lambda reservation: reservation.id):
 
     print(f"\nReservation ID: {reservation.id} | "
           f"Reserved Quantity: {reservation.reserved_quantity}")
