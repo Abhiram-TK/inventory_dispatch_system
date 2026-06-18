@@ -11,15 +11,14 @@ from app.schemas.reservation_schema import ReservationRequest, ReservationRespon
 
 from app.operations.inventory_ops import reserve_inventory
 
-from app.middleware.auth_middleware import (get_current_user)
-
 from app.services.rbac_service import RoleChecker
 
 from typing import Optional
 
 router = APIRouter(tags=["Inventory"])
 
-@router.get("/inventory", response_model=list[InventoryResponse], summary="View Inventory Batches", description="""
+@router.get("/inventory", response_model=list[InventoryResponse], summary="View Inventory Batches", dependencies=[Depends(RoleChecker(["viewer", "recruiter", 
+            "support", "auditor", "manager", "admin"]))],description="""
             Retrieve inventory batches currently available in stock.
 
             Features:
@@ -32,8 +31,7 @@ router = APIRouter(tags=["Inventory"])
             Used before creating reservations.
             """)
 
-def get_inventory(product_id: Optional[int] = Query(None, gt=0, description="Product ID"), db: Session = Depends(get_db), 
-                  current_user=Depends(RoleChecker(["viewer", "recruiter", "support", "auditor", "manager", "admin"]))):
+def get_inventory(product_id: Optional[int] = Query(None, gt=0, description="Product ID"), db: Session = Depends(get_db)):
 
     query = db.query(InventoryBatch)
 
@@ -52,7 +50,8 @@ def get_inventory(product_id: Optional[int] = Query(None, gt=0, description="Pro
 
     return response
 
-@router.post("/inventory/reserve", response_model=ReservationResponse, summary="Reserve Inventory", description="""
+@router.post("/inventory/reserve", response_model=ReservationResponse, summary="Reserve Inventory", dependencies=[Depends(RoleChecker(["recruiter", "manager", "admin"]))], 
+             description="""
              Reserve inventory from a specific batch.
 
              This operation:
@@ -65,7 +64,7 @@ def get_inventory(product_id: Optional[int] = Query(None, gt=0, description="Pro
              Used before dispatch creation.
             """)
 
-def create_reservation(reservation_data: ReservationRequest, current_user=Depends(RoleChecker(["recruiter", "manager", "admin"]))):
+def create_reservation(reservation_data: ReservationRequest):
 
     try:
 

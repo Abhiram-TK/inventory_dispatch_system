@@ -4,6 +4,8 @@ from sqlalchemy.orm import Session
 
 from app.database.connection import get_db
 
+from app.services.rbac_service import RoleChecker
+
 from app.models.reservation import Reservation
 
 from app.schemas.reservation_schema import ReservationListResponse
@@ -12,7 +14,8 @@ from typing import Optional
 
 router = APIRouter(tags=["Reservations"])
 
-@router.get("/reservations", response_model=list[ReservationListResponse], summary="View Reservations", description="""
+@router.get("/reservations", response_model=list[ReservationListResponse], summary="View Reservations", dependencies=[Depends(RoleChecker(["viewer", "recruiter", 
+            "support", "auditor", "manager", "admin"]))],description="""
             Retrieve reservation records.
 
             Supports:

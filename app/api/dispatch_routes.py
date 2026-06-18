@@ -11,11 +11,13 @@ from app.schemas.dispatch_schema import (DispatchCreate, DispatchResponse)
 
 from app.core.logger import logger
 
+from app.services.rbac_service import RoleChecker
+
 from typing import Optional
 
 router = APIRouter(tags=["Dispatch"])
 
-@router.post("/dispatch", response_model=DispatchResponse, summary="Create Dispatch", description="""
+@router.post("/dispatch", response_model=DispatchResponse, summary="Create Dispatch", dependencies=[Depends(RoleChecker(["manager", "admin"]))], description="""
              Create a dispatch for an existing reservation.
 
              This operation:
@@ -58,7 +60,8 @@ def create_dispatch(dispatch_data: DispatchCreate, db: Session = Depends(get_db)
 
     return {"dispatch_id": dispatch.id, "reservation_id": dispatch.reservation_id, "vehicle_number": dispatch.vehicle_number, "status": dispatch.status}
 
-@router.get("/dispatch", response_model=list[DispatchResponse], summary="View Dispatches", description="""
+@router.get("/dispatch", response_model=list[DispatchResponse], summary="View Dispatches", dependencies=[Depends(RoleChecker(["viewer", "recruiter", "support", "auditor", 
+            "manager", "admin"]))], description="""
             Retrieve dispatch records.
 
             Supports:

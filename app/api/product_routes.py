@@ -6,9 +6,12 @@ from app.database.connection import get_db
 from app.models.product import Product
 from app.schemas.product_schema import ProductResponse
 
+from app.services.rbac_service import RoleChecker
+
 router = APIRouter(tags=["Products"])
 
-@router.get("/products", response_model=list[ProductResponse], summary="View Products", description="""
+@router.get("/products", response_model=list[ProductResponse], summary="View Products", dependencies=[Depends(RoleChecker(["viewer", "recruiter", "support", 
+            "auditor", "manager", "admin"]))], description="""
             Retrieve all available products.
 
             Returns product master data including:
