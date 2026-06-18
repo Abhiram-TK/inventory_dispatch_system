@@ -11,6 +11,10 @@ from app.schemas.reservation_schema import ReservationRequest, ReservationRespon
 
 from app.operations.inventory_ops import reserve_inventory
 
+from app.middleware.auth_middleware import (get_current_user)
+
+from app.services.rbac_service import RoleChecker
+
 from typing import Optional
 
 router = APIRouter(tags=["Inventory"])
@@ -28,7 +32,8 @@ router = APIRouter(tags=["Inventory"])
             Used before creating reservations.
             """)
 
-def get_inventory(product_id: Optional[int] = Query(None, gt=0, description="Product ID"), db: Session = Depends(get_db)):
+def get_inventory(product_id: Optional[int] = Query(None, gt=0, description="Product ID"), db: Session = Depends(get_db), 
+                  current_user=Depends(RoleChecker(["viewer", "recruiter", "support", "auditor", "manager", "admin"]))):
 
     query = db.query(InventoryBatch)
 
@@ -60,7 +65,7 @@ def get_inventory(product_id: Optional[int] = Query(None, gt=0, description="Pro
              Used before dispatch creation.
             """)
 
-def create_reservation(reservation_data: ReservationRequest):
+def create_reservation(reservation_data: ReservationRequest, current_user=Depends(RoleChecker(["recruiter", "manager", "admin"]))):
 
     try:
 
