@@ -59,7 +59,7 @@ def create_inventory_batch(product_id, batch_number, quantity_available, manufac
 
     return new_batch
 
-def reserve_inventory(batch_id, reserve_quantity):
+def reserve_inventory(batch_id, reserve_quantity, transaction_id=None):
 
     db = SessionLocal()
 
@@ -88,7 +88,7 @@ def reserve_inventory(batch_id, reserve_quantity):
 
         batch.quantity_available -= reserve_quantity
 
-        reservation = Reservation(batch_id=batch.id, reserved_quantity=reserve_quantity, status="RESERVED")
+        reservation = Reservation(transaction_id=transaction_id, batch_id=batch.id, reserved_quantity=reserve_quantity, status="RESERVED")
 
         db.add(reservation)
         db.commit()

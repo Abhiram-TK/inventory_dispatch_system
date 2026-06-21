@@ -27,3 +27,9 @@ class ReservationListResponse(BaseModel):
     class Config:
 
         from_attributes = True
+
+class ReservationStatusResponse(BaseModel):
+
+    transaction_id: int
+    reservation_id: int
+    status: str

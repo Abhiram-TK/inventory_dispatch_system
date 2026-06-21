@@ -110,7 +110,7 @@ def process_transaction_created(payload):
 
     try:
 
-        reservation = reserve_inventory(batch_id=batch.id, reserve_quantity=quantity)
+        reservation = reserve_inventory(batch_id=batch.id, reserve_quantity=quantity, transaction_id=transaction_id)
 
         processed_transaction = (ProcessedTransaction(transaction_id=transaction_id, invoice_number=invoice_number))
 
@@ -139,5 +139,3 @@ def process_transaction_created(payload):
         logger.info("Event processing completed.")
 
         db.close()
-
-

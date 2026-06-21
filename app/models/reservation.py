@@ -12,6 +12,8 @@ class Reservation(Base):
 
     id = Column(Integer, primary_key=True)
 
+    transaction_id = Column(Integer, nullable=True, index=True)
+
     batch_id = Column(Integer, ForeignKey("inventory_batches.id"))
 
     reserved_quantity = Column(Integer, nullable=False)
@@ -25,6 +27,3 @@ class Reservation(Base):
     dispatch = relationship("Dispatch", back_populates="reservation", uselist=False)
 
     __table_args__ = (CheckConstraint("reserved_quantity > 0", name="check_reserved_quantity_positive"),)
-
-    
-    
