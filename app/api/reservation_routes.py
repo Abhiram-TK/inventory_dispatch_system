@@ -16,7 +16,7 @@ from typing import Optional
 router = APIRouter(tags=["Reservations"])
 
 @router.get("/reservations", response_model=list[ReservationListResponse], summary="View Reservations", dependencies=[Depends(PermissionChecker(["view_reservations"]))], description="""
-           Retrieve inventory reservations.
+            Retrieve inventory reservations.
 
             Requires:
 
@@ -44,10 +44,14 @@ def get_reservations(reservation_id: Optional[int] = None,db: Session = Depends(
 
     return response
 
-@router.get("/reservations/transaction/{transaction_id}", response_model=ReservationStatusResponse, summary="Get Reservation By Transaction ID", dependencies=[Depends(PermissionChecker(["view_reservations"]))], description=
-            """Retrieve reservation status using transaction ID.
+@router.get("/reservations/transaction/{transaction_id}", response_model=ReservationStatusResponse, summary="Get Reservation By Transaction ID", dependencies=[Depends(PermissionChecker(["view_reservations"]))], description="""
+            Retrieve reservation by transaction ID.
 
-            Used by Project 1 to correlate transactions and inventory reservations.""")
+            Requires:
+
+            - view_reservations permission
+
+            Returns the reservation associated with the transaction.""")
 
 def get_reservation_by_transaction(transaction_id: int, db: Session = Depends(get_db)):
 
