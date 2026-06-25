@@ -11,25 +11,20 @@ from app.schemas.reservation_schema import ReservationRequest, ReservationRespon
 
 from app.operations.inventory_ops import reserve_inventory
 
-from app.services.rbac_service import RoleChecker
+from app.services.permission_checker import PermissionChecker
 
 from typing import Optional
 
 router = APIRouter(tags=["Inventory"])
 
-@router.get("/inventory", response_model=list[InventoryResponse], summary="View Inventory Batches", dependencies=[Depends(RoleChecker(["viewer", "recruiter", 
-            "support", "auditor", "manager", "admin"]))],description="""
-            Retrieve inventory batches currently available in stock.
+@router.get("/inventory", response_model=list[InventoryResponse], summary="View Inventory Batches", dependencies=[Depends(PermissionChecker(["view_inventory"]))], description="""
+            Retrieve inventory batches.
 
-            Features:
+            Requires:
 
-            - Optional filtering by Product ID
-            - FIFO visibility using manufacturing dates
-            - Available quantity tracking
-            - Batch-level inventory inspection
+            - view_inventory permission
 
-            Used before creating reservations.
-            """)
+            Returns inventory availability for all products.""")
 
 def get_inventory(product_id: Optional[int] = Query(None, gt=0, description="Product ID"), db: Session = Depends(get_db)):
 
@@ -50,19 +45,15 @@ def get_inventory(product_id: Optional[int] = Query(None, gt=0, description="Pro
 
     return response
 
-@router.post("/inventory/reserve", response_model=ReservationResponse, summary="Reserve Inventory", dependencies=[Depends(RoleChecker(["recruiter", "manager", "admin"]))], 
-             description="""
-             Reserve inventory from a specific batch.
+@router.post("/inventory/reserve", response_model=ReservationResponse, summary="Reserve Inventory", dependencies=[Depends(PermissionChecker(["reserve_inventory"]))], 
+            description="""
+            Create an inventory reservation.
 
-             This operation:
+            Requires:
 
-             - Validates inventory availability
-             - Applies row-level locking
-             - Creates a reservation record
-             - Reduces available inventory
+            - reserve_inventory permission
 
-             Used before dispatch creation.
-            """)
+            Returns the created reservation details.""")
 
 def create_reservation(reservation_data: ReservationRequest):
 

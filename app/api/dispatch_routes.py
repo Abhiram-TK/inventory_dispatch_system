@@ -11,24 +11,20 @@ from app.schemas.dispatch_schema import (DispatchCreate, DispatchResponse)
 
 from app.core.logger import logger
 
-from app.services.rbac_service import RoleChecker
+from app.services.permission_checker import PermissionChecker
 
 from typing import Optional
 
 router = APIRouter(tags=["Dispatch"])
 
-@router.post("/dispatch", response_model=DispatchResponse, summary="Create Dispatch", dependencies=[Depends(RoleChecker(["manager", "admin"]))], description="""
-             Create a dispatch for an existing reservation.
+@router.post("/dispatch", response_model=DispatchResponse, summary="Create Dispatch", dependencies=[Depends(PermissionChecker(["dispatch_inventory"]))], description="""
+            Dispatch reserved inventory.
 
-             This operation:
+            Requires:
 
-             - Validates reservation existence
-             - Ensures reservation is in RESERVED state
-             - Creates dispatch record
-             - Updates reservation status to DISPATCHED
+            - dispatch_inventory permission
 
-             Represents inventory leaving the warehouse.
-             """)
+            Returns dispatch details for the reservation.""")
 
 def create_dispatch(dispatch_data: DispatchCreate, db: Session = Depends(get_db)):
 
@@ -60,17 +56,14 @@ def create_dispatch(dispatch_data: DispatchCreate, db: Session = Depends(get_db)
 
     return {"dispatch_id": dispatch.id, "reservation_id": dispatch.reservation_id, "vehicle_number": dispatch.vehicle_number, "status": dispatch.status}
 
-@router.get("/dispatch", response_model=list[DispatchResponse], summary="View Dispatches", dependencies=[Depends(RoleChecker(["viewer", "recruiter", "support", "auditor", 
-            "manager", "admin"]))], description="""
+@router.get("/dispatch", response_model=list[DispatchResponse], summary="View Dispatches", dependencies=[Depends(PermissionChecker(["view_dispatches"]))], description="""
             Retrieve dispatch records.
 
-            Supports:
+            Requires:
 
-            - Viewing all dispatches
-            - Filtering by Reservation ID
+            - view_dispatches permission
 
-            Used to track completed inventory shipments.
-            """)
+            Returns completed and pending dispatches.""")
 
 def get_dispatch(reservation_id: Optional[int] = None,db: Session = Depends(get_db)):
 

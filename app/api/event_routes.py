@@ -7,18 +7,13 @@ from app.events.reservation_event_handler import (process_transaction_created)
 router = APIRouter(tags=["Events"])
 
 @router.post("/events/transaction-created", summary="Simulate Transaction Event", description="""
-             Simulate an incoming transaction event.
+            Process inbound transaction events.
 
-             This endpoint temporarily replaces Project 1 integration.
+            Used by:
 
-             Workflow:
+            - Sales Transaction Service
 
-             Transaction Event
-             → Inventory Selection
-             → Reservation Creation
-
-             Used for testing event-driven inventory allocation before Project 1 integration.
-             """)
+            Creates inventory reservations from transaction events.""")
 
 def create_transaction_event(event: TransactionCreatedEvent):
 

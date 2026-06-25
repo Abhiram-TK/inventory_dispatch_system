@@ -6,23 +6,18 @@ from app.database.connection import get_db
 from app.models.product import Product
 from app.schemas.product_schema import ProductResponse
 
-from app.services.rbac_service import RoleChecker
+from app.services.permission_checker import PermissionChecker
 
 router = APIRouter(tags=["Products"])
 
-@router.get("/products", response_model=list[ProductResponse], summary="View Products", dependencies=[Depends(RoleChecker(["viewer", "recruiter", "support", 
-            "auditor", "manager", "admin"]))], description="""
-            Retrieve all available products.
+@router.get("/products", response_model=list[ProductResponse], summary="View Products", dependencies=[Depends(PermissionChecker(["view_products"]))], description="""
+            Retrieve available products.
 
-            Returns product master data including:
+            Requires:
 
-            - Product ID
-            - Product Name
-            - SKU
-            - Price
+            - view_products permission
 
-            Used as the starting point for inventory lookup and reservation workflows.
-            """)
+            Returns available products with pricing information.""")
 
 def get_products(db: Session = Depends(get_db)):
 

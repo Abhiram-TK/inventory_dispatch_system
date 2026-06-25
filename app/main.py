@@ -21,14 +21,9 @@ app.include_router(reservation_router)
 app.include_router(dispatch_router)
 
 @app.get("/", tags=["System"], summary="Health Check", description="""
-         Verify that the Inventory Reservation & Dispatch System is running.
+        Check service health.
 
-         Used for:
-
-         - Service health validation
-         - Deployment verification
-         - Monitoring checks
-         """)
+        Returns current application status.""")
 
 def home():
 
