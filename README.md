@@ -1,380 +1,404 @@
 # Inventory Reservation & Dispatch System
 
-Transaction-safe backend inventory reservation and dispatch simulation system built using PostgreSQL and SQLAlchemy ORM.
+## Overview
+
+Inventory Reservation & Dispatch System is a FastAPI-based backend microservice responsible for managing products, inventory batches, inventory reservations, and dispatch operations.
+
+The service integrates with the Authentication Service for JWT authentication and permission-based authorization, and with the Sales Transaction Service through event-driven inventory reservation.
+
+The project demonstrates backend service development using FastAPI, PostgreSQL, SQLAlchemy, Celery, Redis, and REST APIs.
 
 ---
 
-# Project Overview
+## Technology Stack
 
-This project simulates a backend inventory reservation engine capable of:
-
-- tracking inventory batches
-- reserving stock transactionally
-- validating inventory consistency
-- protecting against over-reservation
-- maintaing relational integrity
-- generating synthetic datasets for scaled validation
-
----
-
-# Current Features
-
-## ORM models
-
-Implemented relational models:
-
-- Product
-- InventoryBatch
-- Reservation
-- Dispatch
+- Python
+- FastAPI
+- PostgreSQL
+- SQLAlchemy
+- Celery
+- Redis
+- JWT Authentication
+- Permission-Based Authorization (RBAC)
+- Swagger UI
+- Faker
 
 ---
 
-## Database Relationships
+## System Architecture
 
-| Relationship                 | Type        |
-| ---------------------------- | ----------- |
-| Product → InventoryBatch     | One-to-Many |
-| InventoryBatch → Reservation | One-to-Many |
-| Reservation → Dispatch       | One-to-One  |
-
----
-
-## Transactional Reservation Workflow
-
-Implemented reservation workflow:
-
-Find Inventory Batch
-→ Validate Quantity
-→ Reduce Available Inventory
-→ Create Reservation
-→ Commit Transaction
-
-Features:
-
-- rollback protection
-- inventory consistency validation
-- over-reservation prevention
-
----
-
-## Database Constraints
-
-Implemented:
-
-- Foreign Key constraints
-- CHECK constraints
-- UNIQUE constraints
-- NOT NULL constraints
-
-Examples:
-
-- positive product price
-- non-negative inventory quantity
-- unique SKU values
-- unique batch numbers
-
----
-
-# Faker Integration
-
-Project uses Faker for synthetic dataset generation.
-
-Generated datasets include:
-
-- products
-- inventory batches
-- reservations
-
-Purpose:
-
-- simulate scaled inventory activity
-- validate schema stability
-- expose integrity issues
-- test transactional consistency
-
----
-
-# Scaled Validation
-
-Project validates backend behavior under repeated synthetic workload.
-
-Validation includes:
-
-- repeated product creation
-- repeated inventory batch generation
-- repeated reservation workflows
-- transaction rollback testing
-- relationship integrity verification
-
----
-
-# Rollback Protection
-
-System validates transactional rollback behavior.
-
-Example scenario:
-
-Available Inventory:
-5
-
-Attempted Reservation:
-50
-
-Expected Result:
-
-- reservation fails safely
-- inventory remains unchanged
-- no negative inventory created
-
-This prevents transactional corruption.
-
----
-
-# Schema Stability Validation
-
-Repeated validation cycles test:
-
-- ORM relationship stability
-- foreign key integrity
-- uniqueness enforcement
-- transaction safety
-- inventory consistency
-
-Validation confirms:
-
-- no negative inventory
-- no broken relationships
-- no schema corruption under repeated operations
-
----
-
-# Event-Driven Reservation Workflow
-
-This project now includes simulated event-driven inventory reservation processing.
-
-Instead of manually triggering reservation operations directly, transaction events are emitted and processed through a dedicated event handling layer.
-
-Workflow:
-
-Transaction Created
-→ Event Emitted
-→ Reservation Event Handler
-→ Inventory Reservation Processing
-→ Success / Failure Logging
-
-Example simulated event payload:
-
-```json
-{
-  "transaction_id": 1,
-  "invoice_number": "INV-5001",
-  "product_id": 1,
-  "quantity": 2
-}
+```text
+                    Authentication Service
+                            │
+                     JWT Authentication
+                            │
+                            ▼
+        Inventory Reservation & Dispatch System
+                            │
+          ┌─────────────────┴─────────────────┐
+          │                                   │
+          ▼                                   ▼
+   Product & Inventory APIs         Reservation Event Handler
+          │                                   │
+          ▼                                   ▼
+     PostgreSQL Database          Celery Background Tasks
 ```
 
-# Project Structure
+---
+
+## Reservation Workflow
+
+```text
+TRANSACTION_CREATED Event
+            │
+            ▼
+Validate Event Payload
+            │
+            ▼
+Find FIFO Inventory Batch
+            │
+            ▼
+Reserve Inventory
+            │
+            ▼
+Create Reservation
+            │
+            ▼
+Store Transaction Mapping
+            │
+            ▼
+Return Reservation Status
+```
+
+---
+
+## Dispatch Workflow
+
+```text
+Reserved Inventory
+        │
+        ▼
+Dispatch Request
+        │
+        ▼
+Validate Reservation
+        │
+        ▼
+Create Dispatch
+        │
+        ▼
+Mark Reservation Complete
+```
+
+---
+
+## Features
+
+### Product Management
+
+- Create products
+- View products
+- Product catalog API
+
+### Inventory Management
+
+- Create inventory batches
+- View inventory
+- FIFO inventory selection
+- Inventory validation
+
+### Reservation Management
+
+- Manual reservation
+- Event-driven reservation
+- Reservation lookup by transaction ID
+- Reservation expiration
+- Duplicate event protection
+
+### Dispatch Management
+
+- Dispatch reserved inventory
+- Dispatch tracking
+
+### Security
+
+- JWT Authentication
+- Permission-based Authorization
+- Protected endpoints
+
+### Background Processing
+
+- Celery worker
+- Celery Beat
+- Automatic reservation expiration
+
+### Integration
+
+- Sales Transaction Service integration
+- Event-driven reservation processing
+
+### Documentation
+
+- Interactive Swagger UI
+
+---
+
+## Project Structure
 
 ```text
 inventory_dispatch_system/
-│
+
 ├── app/
+│   ├── api/
+│   ├── core/
 │   ├── database/
-│   │   ├── connection.py
-│   │   ├── seed_data.py
-│   │   ├── relationship_validation.py
-│   │   ├── rollback_validation.py
-│   │   └── schema_validation.py
-│   │
-|   ├── events/
-|   |   ├── __init__.py
-|   |   └── reservation_event_handler.py
-|   |
+│   ├── events/
+│   ├── middleware/
 │   ├── models/
-│   │   ├── product.py
-│   │   ├── inventory_batch.py
-│   │   ├── reservation.py
-│   │   └── dispatch.py
-│   │
 │   ├── operations/
-│   │   └── inventory_ops.py
-│   │
-|   ├── simulate_transaction_event.py
-|   |
+│   ├── schemas/
+│   ├── services/
+│   ├── workers/
 │   └── main.py
 │
+├── tests/
+├── logs/
+├── .env.example
 ├── requirements.txt
-├── .env
-├── .gitignore
 └── README.md
 ```
 
 ---
 
-# Technologies Used
+## API Endpoints
 
-| Technology     | Purpose                         |
-| -------------- | ------------------------------- |
-| Python         | Backend programming             |
-| PostgreSQL     | Relational database             |
-| SQLAlchemy ORM | Database ORM layer              |
-| Faker          | Synthetic dataset generation    |
-| psycopg2       | PostgreSQL driver               |
-| python-dotenv  | Environment variable management |
+### System
+
+| Method | Endpoint | Description          |
+| ------ | -------- | -------------------- |
+| GET    | /health  | Service health check |
+
+### Products
+
+| Method | Endpoint  | Description    |
+| ------ | --------- | -------------- |
+| POST   | /products | Create product |
+| GET    | /products | View products  |
+
+### Inventory
+
+| Method | Endpoint   | Description            |
+| ------ | ---------- | ---------------------- |
+| POST   | /inventory | Create inventory batch |
+| GET    | /inventory | View inventory batches |
+
+### Reservations
+
+| Method | Endpoint                                   | Description        |
+| ------ | ------------------------------------------ | ------------------ |
+| POST   | /reservations                              | Create reservation |
+| GET    | /reservations                              | View reservations  |
+| GET    | /reservations/transaction/{transaction_id} | Reservation lookup |
+
+### Dispatch
+
+| Method | Endpoint  | Description        |
+| ------ | --------- | ------------------ |
+| POST   | /dispatch | Dispatch inventory |
+| GET    | /dispatch | View dispatches    |
+
+### Events
+
+| Method | Endpoint                    | Description               |
+| ------ | --------------------------- | ------------------------- |
+| POST   | /events/transaction-created | Process transaction event |
 
 ---
 
-# Setup Instruction
+## Example Transaction Event
 
-## 1. Clone Repository
+```json
+{
+  "transaction_id": 1,
+  "invoice_number": "INV-2026-000001",
+  "product_id": 1,
+  "quantity": 5
+}
+```
+
+---
+
+## Example Reservation Response
+
+```json
+{
+  "transaction_id": 1,
+  "reservation_id": 12,
+  "status": "RESERVED"
+}
+```
+
+---
+
+## Security Model
+
+Protected endpoints require:
+
+- Valid JWT access token
+- Permission-based authorization
+
+Example permissions:
+
+- view_products
+- view_inventory
+- reserve_inventory
+- view_reservations
+- dispatch_inventory
+- view_dispatches
+- process_events
+
+---
+
+## Configuration
+
+Configuration is managed through environment variables.
+
+Example:
+
+```env
+DATABASE_URL=postgresql://username:password@localhost:5432/inventory_db
+
+SECRET_KEY=your-secret-key
+
+ALGORITHM=HS256
+
+RESERVATION_TIMEOUT_MINUTES=1
+```
+
+Copy `.env.example` to `.env` before running the application.
+
+---
+
+## Running the Project
+
+### Clone Repository
 
 ```bash
 git clone <https://github.com/Abhiram-TK/inventory_dispatch_system>
 ```
 
-## 2. Create Virtual Environment
+### Navigate into Project
+
+```bash
+cd inventory_dispatch_system
+```
+
+### Create Virtual Environment
 
 ```bash
 python -m venv venv
 ```
 
-## 3. Activate Virtual Environment
+### Activate Virtual Environment
 
-### Windows:
+Windows
 
 ```bash
 venv\Scripts\activate
 ```
 
-## 4. Install Dependencies
+### Install Dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-## 5. Configure Environemnt Variables
+### Configure Environment
 
-Create '.env':
+Copy:
 
-Example:
-
-```env
-DATABASE_URL=postgresql://postgres:password@localhost:5432/inventory_db
+```text
+.env.example
 ```
 
-## 6. Create Database Tables
+to
 
-```bash
-python -m app.main
+```text
+.env
 ```
 
----
+Update the values for your local environment.
 
-# Synthetic Dataset Generation
-
-Run:
+### Seed Development Data
 
 ```bash
 python -m app.database.seed_data
 ```
 
-This generates:
-
-- fake products
-- fake inventory batches
-- fake reservations
-
----
-
-# Relationship Validation
-
-Run:
+### Start API
 
 ```bash
-python -m app.database.relationship_validation
+uvicorn app.main:app --reload --port 8002
 ```
 
-Validates:
-
-- Product → Batches
-- Batch → Reservations
-- Reservation → Dispatch
-
----
-
-# Rollback Validation
-
-Run:
+### Start Celery Worker
 
 ```bash
-python -m app.database.rollback_validation
+celery -A app.workers.celery_app worker --pool=solo --loglevel=info
 ```
 
-Validates:
-
-- failed reservations rollback safely
-- inventory remains consistent
-
----
-
-# Schema Stability Validation
-
-Run:
+### Start Celery Beat
 
 ```bash
-python -m app.database.schema_validation
+celery -A app.workers.celery_app beat --loglevel=info
 ```
 
-Validates:
+---
 
-- repeated transactional workload
-- inventory consistency
-- relational integrity
-- schema stability
+## Swagger UI
 
-## Current Project State
+```text
+http://127.0.0.1:8002/docs
+```
 
-Completed:
+Swagger provides:
 
-- ORM architecture
-- transactional reservation workflow
-- rollback protection
-- Faker-based synthetic scaling
-- schema stability validation
-- event-driven reservation workflow
-- reservation event handling
-- event logging workflow
-- validation matrix testing
-
-Not Yet Implemented:
-
-- FastAPI APIs
-- Redis Pub/Sub
-- Celery workers
-- Docker
-- Authentication
-- Deployment
-- Automated API testing
-
-These features will be added in future.
+- Interactive endpoint testing
+- Request validation
+- Response schemas
+- JWT authentication support
 
 ---
 
-# Engineering Focus
+## Related Projects
 
-This project emphasizes:
+This service is designed to work with:
 
-- transactional safety
-- relational consistency
-- scalable validation
-- backend workflow reliability
-- synthetic workload simulation
+- Authentication Service
+- Sales Transaction Service
 
-instead of frontend complexity.
+Together these services demonstrate a simple event-driven backend architecture using multiple FastAPI services.
 
 ---
 
-# License
+## Current Status
 
-Educational backend engineering project.
+Implemented
+
+- Product management
+- Inventory batch management
+- FIFO inventory reservation
+- Dispatch management
+- Event-driven reservation processing
+- Reservation lookup by transaction ID
+- JWT authentication
+- Permission-based authorization
+- Celery worker
+- Celery Beat
+- Automatic reservation expiration
+- Swagger documentation
+
+Next Phase
+
+- Docker containerization
+- Docker Compose deployment
