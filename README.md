@@ -148,24 +148,70 @@ Mark Reservation Complete
 ```text
 inventory_dispatch_system/
 
-├── app/
-│   ├── api/
-│   ├── core/
-│   ├── database/
-│   ├── events/
-│   ├── middleware/
-│   ├── models/
-│   ├── operations/
-│   ├── schemas/
-│   ├── services/
-│   ├── workers/
+├── app
+│   ├── api
+│   │   ├── dispatch_routes.py
+│   │   ├── event_routes.py
+│   │   ├── inventory_routes.py
+│   │   ├── product_routes.py
+│   │   └── reservation_routes.py
+│   │
+│   ├── core
+│   │   ├── config.py
+│   │   └── logger.py
+│   │
+│   ├── database
+│   │   ├── connection.py
+│   │   ├── create_tables.py
+│   │   └── seed_data.py
+│   │
+│   ├── events
+│   │   ├── __init__.py
+│   │   └── reservation_event_handler.py
+│   │
+│   ├── middleware
+│   │   └── auth_middleware.py
+│   │
+│   ├── models
+│   │   ├── __init__.py
+│   │   ├── dispatch.py
+│   │   ├── inventory_batch.py
+│   │   ├── processed_transaction.py
+│   │   ├── product.py
+│   │   └── reservation.py
+│   │
+│   ├── operations
+│   │   └── inventory_ops.py
+│   │
+│   ├── schemas
+│   │   ├── dispatch_schema.py
+│   │   ├── event_schema.py
+│   │   ├── inventory_schema.py
+│   │   ├── product_schema.py
+│   │   └── reservation_schema.py
+│   │
+│   ├── services
+│   │   ├── jwt_service.py
+│   │   ├── permission_checker.py
+│   │   └── rbac_service.py
+│   │
+│   ├── workers
+│   │   ├── __init__.py
+│   │   ├── celery_app.py
+│   │   └── reservation_tasks.py
+│   │
 │   └── main.py
 │
-├── tests/
-├── logs/
+├── tests
+│   ├── relationship_validation.py
+│   ├── rollback_validation.py
+│   ├── schema_validation.py
+│   └── simulate_transaction_event.py
+│
 ├── .env.example
-├── requirements.txt
-└── README.md
+├── .gitignore
+├── README.md
+└── requirements.txt
 ```
 
 ---
